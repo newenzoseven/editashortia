@@ -1,0 +1,489 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Edita Short IA</title>
+<style>
+:root{--bg:#0b0b0d;--fg:#f4f4f6;--mut:#a1a1aa;--card:#17171b;--bd:#2a2a31;--ac:#e11d48;--acfg:#fff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:560px;margin:0 auto;padding:18px 16px 40px}
+h1{font-size:26px;margin:0 0 4px}
+.sub{color:var(--mut);margin:0 0 16px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:14px;margin-bottom:12px}
+label{display:block;font-size:14px;color:var(--mut);margin:10px 0 4px}
+label b{color:var(--fg);font-weight:600}
+input[type=range]{width:100%;accent-color:var(--ac)}
+input[type=text],textarea,select{width:100%;padding:10px;border-radius:10px;border:1px solid var(--bd);background:var(--bg);color:var(--fg);font:inherit}
+textarea{min-height:72px;resize:vertical}
+.btn{display:block;width:100%;padding:14px;border:0;border-radius:12px;background:var(--ac);color:var(--acfg);font:600 17px inherit;cursor:pointer}
+.btn:disabled{opacity:.5}
+.btn.alt{background:transparent;color:var(--fg);border:1px solid var(--bd);margin-top:8px}
+#pick{display:block;text-align:center;border:2px dashed var(--bd);border-radius:14px;padding:22px;cursor:pointer;margin-bottom:12px}
+#pick input{display:none}
+#stage{display:none}
+canvas{display:block;width:100%;max-width:300px;aspect-ratio:9/16;margin:0 auto 12px;border-radius:12px;background:#000}
+.bar{height:8px;background:var(--bd);border-radius:6px;overflow:hidden;margin-top:10px;display:none}
+.bar i{display:block;height:100%;width:0;background:var(--ac)}
+#msg{color:var(--mut);font-size:14px;margin-top:8px;text-align:center}
+.note{color:var(--mut);font-size:13px}
+[hidden]{display:none!important}#own,#login{position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;padding:16px;z-index:9}
+.hero{text-align:center;padding:26px 6px 14px}.hero h2{font-size:30px;line-height:1.15;margin:0 0 10px}.hero span{color:var(--ac)}h3{margin:24px 0 8px;font-size:18px}details{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px;margin-bottom:8px}summary{font-weight:600;cursor:pointer}.g2{display:grid;gap:10px}
+
+main:has(#landing:not([hidden])){max-width:1080px}
+.lp-nav{display:none;gap:22px;margin:0 20px;font-size:14px}
+.lp-nav a{color:var(--mut);text-decoration:none}.lp-nav a:hover{color:var(--fg)}
+@media(min-width:760px){.lp-nav{display:flex}}
+.lp-hero{position:relative;text-align:center;padding:44px 4px 28px}
+.lp-hero:before{content:"";position:absolute;inset:-40px 0 auto;height:380px;background:radial-gradient(60% 70% at 50% 0,rgba(225,29,72,.28),transparent 70%);z-index:-1;pointer-events:none}
+.lp-badge{display:inline-block;border:1px solid var(--bd);background:var(--card);border-radius:99px;padding:6px 14px;font-size:13px;color:var(--mut);margin-bottom:16px}
+.lp-hero h2{font-size:clamp(34px,7vw,60px);line-height:1.06;letter-spacing:-.02em;margin:0 0 14px;font-weight:800}
+.lp-hero h2 em{font-style:normal;background:linear-gradient(90deg,#fb7185,var(--ac));-webkit-background-clip:text;background-clip:text;color:transparent}
+.lp-sub{color:var(--mut);font-size:clamp(16px,2.2vw,19px);max-width:620px;margin:0 auto 24px}
+.lp-form{display:flex;gap:8px;max-width:640px;margin:0 auto;padding:6px;border:1px solid var(--bd);background:var(--card);border-radius:16px;flex-wrap:wrap}
+.lp-form input{flex:1 1 220px;border:0;background:transparent;padding:12px;font-size:16px;color:var(--fg);outline:0;min-width:0;width:auto}
+.lp-form .btn{width:auto;flex:0 0 auto;padding:13px 22px;margin:0}
+@media(max-width:520px){.lp-form .btn{width:100%}}
+.lp-phones{display:flex;justify-content:center;gap:14px;margin-top:34px}
+.lp-phone{position:relative;width:min(30vw,190px);aspect-ratio:9/16;border:5px solid #26262d;border-radius:24px;overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,.5)}
+.lp-phone.p1{background:linear-gradient(160deg,#3b1020,#0b0b0d 70%)}
+.lp-phone.p2{background:linear-gradient(160deg,#10233b,#0b0b0d 70%);transform:translateY(-14px)}
+.lp-phone.p3{background:linear-gradient(160deg,#2b1a3b,#0b0b0d 70%)}
+.lp-hk{position:absolute;left:8%;right:8%;top:14%;font-weight:800;font-size:clamp(11px,2.2vw,17px);line-height:1.15;text-shadow:0 1px 0 #000,0 0 6px #000}
+.lp-cp{position:absolute;left:8%;right:8%;top:66%;font-weight:800;font-size:clamp(11px,2.2vw,16px);line-height:1.15;color:#ffe34d;text-shadow:0 1px 0 #000,0 0 6px #000}
+.lp-sec{padding:44px 0}
+.lp-h{font-size:clamp(26px,4.5vw,38px);text-align:center;margin:0 0 8px;letter-spacing:-.01em}
+.lp-p{text-align:center;color:var(--mut);max-width:620px;margin:0 auto 26px}
+.lp-grid3{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.lp-card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:20px}
+.lp-card .ic{width:40px;height:40px;border-radius:12px;background:rgba(225,29,72,.15);display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:12px}
+.lp-card b{display:block;font-size:17px;margin-bottom:4px}
+.lp-num{font-weight:800;color:var(--ac);font-size:12px;letter-spacing:.1em;margin-bottom:8px}
+.lp-price{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));max-width:720px;margin:0 auto}
+.lp-cta{text-align:center;border:1px solid var(--bd);border-radius:22px;padding:40px 20px;background:radial-gradient(70% 120% at 50% 0,rgba(225,29,72,.22),var(--card))}
+.lp-cta .btn{display:inline-block;width:auto;padding:14px 28px}
+</style>
+</head>
+<body>
+<main>
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px"><h1 id="brand" style="font-size:22px;margin:0;user-select:none;-webkit-user-select:none">Edita Short IA</h1><nav class="lp-nav" id="lpnav" style="flex:1;justify-content:center"><a href="#como">Cómo funciona</a><a href="#funciones">Funciones</a><a href="#precios">Precios</a><a href="#faq">Preguntas</a></nav><button id="navbtn" class="btn alt" data-start style="width:auto;margin:0;padding:8px 14px;font-size:14px">Iniciar sesión</button></div>
+<div id="landing">
+<section class="lp-hero">
+<div class="lp-badge">✦ Hecho para creadores de Shorts</div>
+<h2>Convierte un video de YouTube en <em>Shorts virales</em></h2>
+<p class="lp-sub">La IA elige el mejor momento, escribe el título gancho y agrega los subtítulos. Tú solo pegas el enlace.</p>
+<form id="hform" class="lp-form" novalidate>
+<input id="hurl" type="text" inputmode="url" autocomplete="off" placeholder="Pega aquí un enlace de YouTube" aria-label="Enlace de YouTube">
+<button class="btn" type="submit">Consigue clips ahora</button>
+</form>
+<div id="hmsg" class="note" style="margin-top:10px;min-height:18px"></div>
+<div class="note">2 videos gratis · sin tarjeta · Pro por S/ <span class="pr"></span></div>
+<div class="lp-phones" aria-hidden="true">
+<div class="lp-phone p1"><div class="lp-hk">Nadie te cuenta esto…</div><div class="lp-cp">Mira lo que pasó después</div></div>
+<div class="lp-phone p2"><div class="lp-hk">Esto cambia todo</div><div class="lp-cp">Y nadie lo esperaba</div></div>
+<div class="lp-phone p3"><div class="lp-hk">No vas a creer el final</div><div class="lp-cp">Quédate hasta el final</div></div>
+</div>
+<div class="note" style="margin-top:10px">Ejemplo del formato final</div>
+</section>
+
+<section class="lp-sec" id="como">
+<h3 class="lp-h">Cómo funciona</h3>
+<p class="lp-p">De un video de YouTube a un Short listo para publicar en 3 pasos.</p>
+<div class="lp-grid3">
+<div class="lp-card"><div class="lp-num">PASO 1</div><b>Pega un enlace de YouTube</b><span class="note">Cualquier video público: podcasts, entrevistas, gaming o contenido largo.</span></div>
+<div class="lp-card"><div class="lp-num">PASO 2</div><b>La IA crea tu Short</b><span class="note">Encuentra el mejor momento y escribe el título gancho y los subtítulos automáticamente.</span></div>
+<div class="lp-card"><div class="lp-num">PASO 3</div><b>Descarga y publica</b><span class="note">Formato vertical 9:16 listo para YouTube Shorts, TikTok e Instagram Reels.</span></div>
+</div>
+<div style="text-align:center;margin-top:18px"><button class="btn" data-start style="display:inline-block;width:auto;padding:14px 28px">Empezar gratis</button></div>
+</section>
+
+<section class="lp-sec">
+<h3 class="lp-h">Dos formas de empezar</h3>
+<p class="lp-p">Pega un enlace o usa un video de tu galería.</p>
+<div class="lp-grid3" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr));max-width:720px;margin:0 auto">
+<div class="lp-card"><div class="ic">▶️</div><b>Enlace de YouTube</b><span class="note">youtube.com/watch?v=… · youtu.be/… · youtube.com/shorts/…</span></div>
+<div class="lp-card"><div class="ic">📁</div><b>Subir archivo</b><span class="note">MP4 · MOV · WEBM. Se procesa en tu propio dispositivo.</span></div>
+</div>
+</section>
+
+<section class="lp-sec" id="funciones">
+<h3 class="lp-h">Todo lo que necesitas para crear Shorts</h3>
+<p class="lp-p">Sin saber editar. La IA hace el trabajo pesado.</p>
+<div class="lp-grid3">
+<div class="lp-card"><div class="ic">🎯</div><b>Mejor momento con IA</b><span class="note">Analiza el video y elige el fragmento con más potencial.</span></div>
+<div class="lp-card"><div class="ic">🔥</div><b>Título gancho automático</b><span class="note">Un título que atrapa al espectador en los primeros 3 segundos.</span></div>
+<div class="lp-card"><div class="ic">💬</div><b>Subtítulos automáticos</b><span class="note">Con tiempos, grandes y fáciles de leer.</span></div>
+<div class="lp-card"><div class="ic">📱</div><b>Formato 9:16</b><span class="note">Listo para Shorts, TikTok y Reels.</span></div>
+<div class="lp-card"><div class="ic">🌫️</div><b>Fondo borroso</b><span class="note">Tu video completo, sin bordes negros.</span></div>
+<div class="lp-card"><div class="ic">🔍</div><b>Encuadre y zoom</b><span class="note">Centra lo importante a tu gusto con dos deslizadores.</span></div>
+</div>
+</section>
+
+<section class="lp-sec" id="precios">
+<h3 class="lp-h">Precios</h3>
+<p class="lp-p">Empieza gratis. Mejora cuando lo necesites.</p>
+<div class="lp-price">
+<div class="lp-card"><b>Gratis</b><div style="font-size:34px;font-weight:800;margin:6px 0">S/ 0</div><span class="note">2 videos · calidad estándar con marca de agua</span></div>
+<div class="lp-card" style="border-color:var(--ac)"><b>Pro</b><div style="font-size:34px;font-weight:800;color:var(--ac);margin:6px 0">S/ <span class="pr"></span></div><span class="note">30 días de acceso · pago por Yape · videos ilimitados · alta calidad · sin marca de agua</span></div>
+</div>
+</section>
+
+<section class="lp-sec" id="faq">
+<h3 class="lp-h">Preguntas frecuentes</h3>
+<div style="max-width:720px;margin:18px auto 0">
+<details><summary>¿Necesito saber editar?</summary><p class="note">No. Pegas el enlace, la IA hace el Short y tú solo lo revisas y lo descargas.</p></details>
+<details><summary>¿Cómo pago?</summary><p class="note">Con Yape, en soles. Envías el comprobante por WhatsApp y recibes tu código para activar Pro. Dura 30 días y luego renuevas.</p></details>
+<details><summary>¿Qué pasa con mi video?</summary><p class="note">Si subes un archivo, se procesa en tu propio celular o computadora. Si pegas un enlace de YouTube, el video se descarga de forma temporal para analizarlo y luego se elimina.</p></details>
+<details><summary>¿Puedo cambiar el título o los subtítulos?</summary><p class="note">Sí. La IA los genera sola, pero puedes editarlos antes de crear tu Short.</p></details>
+<details><summary>¿Qué videos puedo usar?</summary><p class="note">Usa solo videos tuyos o con permiso de su creador.</p></details>
+</div>
+</section>
+
+<section class="lp-sec">
+<div class="lp-cta"><h3 class="lp-h" style="margin-bottom:8px">¿Listo para crear Shorts atractivos hoy?</h3>
+<p class="lp-p" style="margin-bottom:18px">2 videos gratis · sin tarjeta</p>
+<button class="btn" data-start>Consigue clips ahora</button></div>
+</section>
+</div>
+<div id="login" hidden><div class="card" style="width:100%;max-width:400px"><b style="font-size:20px">Crea tu cuenta gratis</b><p class="note">Entra y usa tus 2 videos gratis. Sin tarjeta.</p>
+<button id="lg" class="btn" style="background:#fff;color:#222;margin-bottom:10px">Continuar con Google</button>
+<button id="lf" class="btn" style="background:#1877f2;color:#fff;margin-bottom:10px">Continuar con Facebook</button>
+<button id="ld" class="btn" style="background:#5865f2;color:#fff">Continuar con Discord</button>
+<div id="lemw" hidden><label>Tu correo</label><input id="lem" type="text" inputmode="email" placeholder="tucorreo@gmail.com"><button id="lgo" class="btn alt" style="margin-top:10px">Continuar con correo</button></div>
+<div id="lmsg" class="note" style="margin-top:8px"></div><button id="lclose" class="btn alt">Cerrar</button></div></div>
+<section id="gate" hidden>
+<h2 style="margin:0 0 4px">Mejora a Pro</h2><p class="sub" id="gh">Videos ilimitados, alta calidad y sin marca de agua.</p>
+<div class="card" style="text-align:center;border-color:var(--ac)"><div style="font-size:38px;font-weight:800;color:var(--ac)">S/ <span class="pr"></span></div><div>Acceso completo a Edita Short IA</div></div>
+<div class="card">
+<p style="margin-top:0"><b>1.</b> Yapea <b>S/ <span class="pr"></span></b> al número <b id="ynum"></b></p>
+<button id="pay" class="btn" style="margin:6px 0 8px">Pagar con Yape</button><div id="pmsg" class="note" style="margin-bottom:10px"></div>
+<img id="qr" alt="QR de Yape" hidden style="display:block;max-width:220px;width:100%;margin:0 auto 8px;border-radius:12px">
+<label><b>2.</b> Escribe tu nombre</label><input id="nom" type="text" placeholder="Tu nombre" maxlength="40">
+<a id="wa" class="btn" style="text-align:center;text-decoration:none;margin-top:10px" target="_blank" rel="noopener">3. Enviar comprobante por WhatsApp</a>
+<label><b>4.</b> Escribe el código que te envié</label><input id="cod" type="text" placeholder="Código" maxlength="12" autocapitalize="characters">
+<button id="ent" class="btn alt">Entrar</button><div id="gmsg" class="note" style="margin-top:8px"></div>
+</div></section>
+<div id="own" hidden><div class="card" style="width:100%;max-width:420px">
+<b>Panel de dueño</b>
+<div id="o1"><label id="olb">Contraseña</label><input id="opw" type="password"><button id="olog" class="btn" style="margin-top:10px">Entrar</button></div>
+<div id="o2" hidden><label>Nombre del cliente (igual que lo escribió)</label><input id="ocn" type="text"><button id="ogen" class="btn" style="margin-top:10px">Generar código</button><div id="ocode" style="font:800 30px monospace;text-align:center;margin:10px 0"></div><button id="ostudio" class="btn alt">Entrar al estudio</button></div>
+<div id="omsg" class="note" style="margin-top:8px;word-break:break-all"></div>
+<button id="oclose" class="btn alt">Cerrar</button></div></div>
+<div id="tool" hidden>
+<div class="card" style="display:flex;align-items:center;gap:8px"><div style="flex:1;min-width:0"><b id="who" style="word-break:break-all"></b><div class="note" id="quota"></div></div><button id="up" class="btn" style="width:auto;margin:0;padding:8px 12px;font-size:14px">Pro</button><button id="lout" class="btn alt" style="width:auto;margin:0;padding:8px 12px;font-size:14px">Salir</button></div>
+<div class="card"><b>Pega un enlace de YouTube</b><div class="note" style="margin:2px 0 8px">La IA elige el mejor momento y crea el gancho y los subtítulos sola.</div><input id="yturl" type="text" inputmode="url" autocomplete="off" placeholder="https://www.youtube.com/watch?v=…"><button id="ytgo" class="btn" style="margin-top:10px">Generar Short con IA</button><div id="ytmsg" class="note" style="margin-top:8px"></div></div>
+<div class="note" style="text-align:center;margin:0 0 8px">— o —</div>
+<label id="pick"><input id="file" type="file" accept="video/*"><b>Toca para elegir tu video</b><br><span class="note">MP4, MOV o WEBM · se procesa en tu dispositivo</span></label>
+
+<video id="v" playsinline muted preload="auto" style="display:none"></video>
+
+<div id="stage">
+  <canvas id="cv"></canvas>
+  <div class="card">
+    <label><b>Inicio:</b> <span id="ta">0.0</span> s</label>
+    <input id="a" type="range" min="0" max="10" step="0.1" value="0">
+    <label><b>Fin:</b> <span id="tb">0.0</span> s <span class="note">(máx. 60 s)</span></label>
+    <input id="b" type="range" min="0" max="10" step="0.1" value="10">
+  </div>
+  <div class="card">
+    <label><b>Formato</b></label>
+    <select id="mode"><option value="fill">Llenar pantalla (recorta los lados)</option><option value="fit">Video completo con fondo borroso</option></select>
+    <label><b>Encuadre</b> <span class="note">(izquierda ↔ derecha)</span></label>
+    <input id="pos" type="range" min="0" max="100" value="50">
+    <label><b>Zoom</b></label>
+    <input id="zoom" type="range" min="100" max="220" value="100">
+  </div>
+  <details>
+    <summary>Personalizar gancho y subtítulos <span class="note">(opcional · la IA ya los genera)</span></summary>
+    <label><b>Título gancho</b> <span class="note">(arriba del video)</span></label>
+    <input id="hook" type="text" maxlength="70" placeholder="Nadie te cuenta esto sobre…">
+    <label><b>Subtítulos</b> <span class="note">una línea por frase: segundo|texto</span></label>
+    <textarea id="caps" placeholder="0|Mira esto&#10;2.5|Lo que pasó después&#10;5|Increíble"></textarea>
+  </details>
+  <button id="go" class="btn">Crear mi Short</button>
+  <div class="bar" id="bar"><i id="bi"></i></div>
+  <div id="msg"></div>
+  <div id="res" style="display:none;margin-top:14px">
+    <video id="out" controls playsinline style="width:100%;max-width:300px;display:block;margin:0 auto;border-radius:12px;background:#000"></video>
+    <button id="save" class="btn alt">Guardar video</button>
+  </div>
+</div>
+</div>
+<p class="note" style="margin-top:20px">Usa solo videos tuyos o con permiso. La exportación se graba en tiempo real: dura lo mismo que tu clip y debes dejar esta pantalla abierta.</p>
+<footer class="note" style="text-align:center;margin-top:34px">© 2026 Edita Short IA · <a id="fwa" target="_blank" rel="noopener" style="color:var(--ac)">Contacto por WhatsApp</a></footer>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const v=$('v'),cv=$('cv'),cx=cv.getContext('2d');
+const W=720,H=1280;cv.width=W;cv.height=H;
+const sm=document.createElement('canvas');sm.width=36;sm.height=64;const sx=sm.getContext('2d');
+let auto=null,busy=false,blobOut=null,extOut='webm',actx=null,asrc=null,adst=null;
+
+function caps(){
+  return $('caps').value.split('\n').map(l=>{
+    const i=l.indexOf('|'); if(i<0) return null;
+    const t=parseFloat(l.slice(0,i)); return isNaN(t)?null:{t:t,s:l.slice(i+1).trim()};
+  }).filter(Boolean).sort((x,y)=>x.t-y.t);
+}
+function wrapText(t,y,size,fill,maxW){
+  cx.font='800 '+size+'px system-ui,Arial,sans-serif';
+  cx.textAlign='center';cx.lineJoin='round';cx.lineWidth=size/5;cx.strokeStyle='#000';
+  const words=t.split(' '),lines=[];let cur='';
+  for(const w of words){const test=cur?cur+' '+w:w;if(cx.measureText(test).width>maxW&&cur){lines.push(cur);cur=w}else cur=test}
+  if(cur)lines.push(cur);
+  lines.forEach((ln,i)=>{const yy=y+i*size*1.15;cx.strokeText(ln,W/2,yy);cx.fillStyle=fill;cx.fillText(ln,W/2,yy)});
+}
+function draw(rel){
+  const vw=v.videoWidth,vh=v.videoHeight; if(!vw) return;
+  const mode=$('mode').value,z=$('zoom').value/100,p=$('pos').value/100;
+  cx.fillStyle='#000';cx.fillRect(0,0,W,H);
+  let s,dw,dh,dx,dy;
+  if(mode==='fit'){
+    sx.drawImage(v,0,0,36,64);cx.imageSmoothingEnabled=true;cx.drawImage(sm,0,0,W,H);
+    cx.fillStyle='rgba(0,0,0,.45)';cx.fillRect(0,0,W,H);
+    s=(W/vw)*z;dw=vw*s;dh=vh*s;dx=(W-dw)/2;dy=(H-dh)/2;
+  }else{
+    s=Math.max(H/vh,W/vw)*z;dw=vw*s;dh=vh*s;dx=-(dw-W)*p;dy=(H-dh)/2;
+  }
+  cx.drawImage(v,dx,dy,dw,dh);
+  const h=$('hook').value.trim(); if(h) wrapText(h,170,58,'#fff',W-90);
+  let cur=null;for(const c of caps()){if(c.t<=rel)cur=c}
+  if(cur&&cur.s) wrapText(cur.s,H*0.74,56,'#ffe34d',W-100);
+  if(!paid){cx.font='700 34px system-ui,sans-serif';cx.textAlign='center';cx.fillStyle='rgba(255,255,255,.55)';cx.fillText('Edita Short IA · versión gratis',W/2,H-60)}
+}
+function limits(){
+  let a=+$('a').value,b=+$('b').value;
+  if(b<=a+0.5){b=Math.min(a+0.5,v.duration);}
+  if(b-a>60)b=a+60;
+  $('b').value=b;$('ta').textContent=a.toFixed(1);$('tb').textContent=b.toFixed(1);
+  return [a,b];
+}
+function preview(){
+  if(busy||!v.duration)return;
+  const [a]=limits();
+  const go=()=>draw(0);
+  v.addEventListener('seeked',go,{once:true});
+  v.currentTime=a;
+  if(Math.abs(v.currentTime-a)<0.01)go();
+}
+$('file').addEventListener('change',e=>{
+  const f=e.target.files[0];if(!f)return;
+  auto=null;v.removeAttribute('crossorigin');
+  v.src=URL.createObjectURL(f);
+});
+v.addEventListener('loadedmetadata',()=>{
+  const d=v.duration;
+  ['a','b'].forEach(id=>{$(id).max=d});
+  $('a').value=0;$('b').value=Math.min(d,60);
+  $('stage').style.display='block';$('res').style.display='none';
+  preview();
+});
+['a','b','mode','pos','zoom','hook','caps'].forEach(id=>$(id).addEventListener('input',preview));
+
+function ytId(u){const m=(u||'').match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|shorts\/|live\/|embed\/))([\w-]{11})/);return m?m[1]:null}
+v.addEventListener('loadedmetadata',()=>{
+  if(!auto)return;
+  const d=v.duration;
+  let a=Math.max(0,Math.min(+auto.start||0,Math.max(0,d-1))),b=Math.min(d,+auto.end||a+30);
+  if(b<=a+0.5)b=Math.min(d,a+30);
+  if(b-a>60)b=a+60;
+  $('a').value=a;$('b').value=b;
+  $('hook').value=String(auto.hook||'').slice(0,70);
+  $('caps').value=(auto.captions||[]).map(c=>(+c.t).toFixed(1)+'|'+String(c.s||'').replace(/[\r\n|]+/g,' ')).join('\n');
+  $('msg').textContent='Listo: la IA eligió el momento y escribió el gancho y los subtítulos. Toca “Crear mi Short”.';
+  auto=null;preview();
+  $('stage').scrollIntoView({behavior:'smooth',block:'start'});
+});
+async function genYT(){
+  const u=$('yturl').value.trim();
+  if(!ytId(u)){$('ytmsg').textContent='Pega un enlace válido de YouTube.';return}
+  chk();if(!paid&&used()>=2){showGate(true);return}
+  if(!CFG.api){$('ytmsg').textContent='La conexión con YouTube aún no está activada. Mientras tanto, sube tu video desde la galería.';return}
+  $('ytgo').disabled=true;$('ytmsg').textContent='La IA está analizando tu video… puede tardar un par de minutos.';
+  try{
+    const r=await fetch(CFG.api.replace(/\/$/,'')+'/youtube',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:u})});
+    const j=await r.json().catch(()=>({}));
+    if(!r.ok||!j.video)throw new Error(j.error||'');
+    auto=j;v.crossOrigin='anonymous';v.src=j.video;
+    $('ytmsg').textContent='Cargando el video…';
+  }catch(e){
+    $('ytmsg').textContent='No se pudo procesar ese enlace. '+(e.message||'Revisa que el video sea público e intenta de nuevo.');
+  }
+  $('ytgo').disabled=false;
+}
+$('ytgo').addEventListener('click',genYT);
+$('yturl').addEventListener('keydown',e=>{if(e.key==='Enter')genYT()});
+v.addEventListener('error',()=>{if(auto){auto=null;$('ytmsg').textContent='No se pudo cargar el video. Intenta con otro enlace.'}});
+function takePending(){let u=null;try{u=sessionStorage.getItem('es_yt');sessionStorage.removeItem('es_yt')}catch(_){}if(u){$('yturl').value=u;genYT()}}
+
+
+$('go').addEventListener('click',async()=>{
+  if(busy||!v.duration)return;
+  chk();if(!paid&&used()>=2){showGate(true);return}
+  const [a,b]=limits();
+  busy=true;$('go').disabled=true;$('res').style.display='none';
+  $('bar').style.display='block';$('msg').textContent='Grabando tu Short… no cierres esta pantalla.';
+  try{
+    const AC=window.AudioContext||window.webkitAudioContext;
+    if(!actx&&AC){actx=new AC();asrc=actx.createMediaElementSource(v);adst=actx.createMediaStreamDestination();asrc.connect(adst)}
+    if(actx)await actx.resume();
+    const stream=cv.captureStream(30);
+    if(adst)adst.stream.getAudioTracks().forEach(t=>stream.addTrack(t));
+    const types=['video/mp4;codecs=avc1','video/mp4','video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm'];
+    const mt=types.find(t=>window.MediaRecorder&&MediaRecorder.isTypeSupported(t))||'';
+    const rec=new MediaRecorder(stream,mt?{mimeType:mt,videoBitsPerSecond:(paid?6000000:1800000)}:{videoBitsPerSecond:(paid?6000000:1800000)});
+    const chunks=[];
+    rec.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data)};
+    const done=new Promise(r=>rec.onstop=r);
+    await new Promise(res=>{v.addEventListener('seeked',res,{once:true});v.currentTime=a;});
+    v.muted=false;
+    rec.start(250);
+    await v.play();
+    await new Promise(res=>{
+      const tick=()=>{
+        const t=v.currentTime;
+        draw(t-a);
+        $('bi').style.width=Math.min(100,((t-a)/(b-a))*100)+'%';
+        if(t>=b||v.ended||v.paused){res();return}
+        requestAnimationFrame(tick);
+      };tick();
+    });
+    v.pause();rec.stop();await done;
+    const type=(rec.mimeType||mt||'video/webm').split(';')[0];
+    extOut=type.indexOf('mp4')>=0?'mp4':'webm';
+    blobOut=new Blob(chunks,{type:type});
+    $('out').src=URL.createObjectURL(blobOut);
+    $('res').style.display='block';
+    if(!paid){bump()}refresh();$('msg').textContent='¡Listo! Revisa tu Short y guárdalo.';
+    $('res').scrollIntoView({behavior:'smooth',block:'center'});
+  }catch(err){
+    $('msg').textContent='No se pudo grabar en este navegador. Prueba con Chrome o Safari actualizado.';
+  }
+  v.muted=true;busy=false;$('go').disabled=false;$('bar').style.display='none';$('bi').style.width='0';
+  preview();
+});
+
+$('save').addEventListener('click',async()=>{
+  if(!blobOut)return;
+  try{
+    const d=window.claude?await claude.use('downloads'):null;
+    if(!d){const l=document.createElement('a');l.href=URL.createObjectURL(blobOut);l.download='mi-short.'+extOut;document.body.appendChild(l);l.click();l.remove();return}
+    await d.save({filename:'mi-short.'+extOut,data:blobOut});
+    $('msg').textContent='Guardado ✅';
+  }catch(e){
+    if(!e||e.code!=='declined')$('msg').textContent='No se pudo guardar. Intenta de nuevo.';
+  }
+});
+
+/* ===== CONFIGURA AQUÍ ===== */
+const CFG={api:'',precio:'25.00',yape:'926582512',whatsapp:'51926582512',qr:'',salt:'CAMBIA-ESTA-FRASE-SECRETA',googleClientId:'',facebookAppId:'1843099383548169',discordClientId:'1562652285132214293',passHash:'1b1d9bd54c75bb5f416d192245251ae06a6574a4065ebfdfa1a385042bdcb221'};
+/* ========================== */
+let user=null,paid=false,proUntil=0,expired=false;
+async function sha(t){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(t));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}
+const norm=n=>n.trim().toLowerCase().replace(/\s+/g,' ');
+const pad=x=>String(x).padStart(2,'0'),DAY=864e5;
+const ymd=()=>{const d=new Date();return String(d.getFullYear()).slice(2)+pad(d.getMonth()+1)+pad(d.getDate())};
+const mk=async(n,d)=>d+'-'+(await sha(CFG.salt+norm(n)+d)).slice(0,6).toUpperCase();
+function issued(c){const m=/^(\d{2})(\d{2})(\d{2})-/.exec(c);return m?new Date(2000+ +m[1],+m[2]-1,+m[3]).getTime():0}
+const fresh=c=>{const t=issued(c),a=Date.now()-t;return t>0&&a>=-DAY&&a<=4*DAY};
+function chk(){if(paid&&proUntil!==Infinity&&Date.now()>proUntil){paid=false;expired=true;refresh()}}
+function unlock(){paid=true;$('gate').hidden=true;$('landing').hidden=true;$('login').hidden=true;$('tool').hidden=false;$('own').hidden=true;refresh();takePending()}
+document.querySelectorAll('.pr').forEach(e=>e.textContent=CFG.precio);
+const fmt=CFG.yape.replace(/(\d{3})(\d{3})(\d{3})/,'$1 $2 $3');$('ynum').textContent=fmt;$('fwa').href='https://wa.me/'+CFG.whatsapp;
+if(CFG.qr){$('qr').src=CFG.qr;$('qr').hidden=false}
+function wa(){const n=$('nom').value.trim()||'(mi nombre)';$('wa').href='https://wa.me/'+CFG.whatsapp+'?text='+encodeURIComponent('Hola, ya pagué S/ '+CFG.precio+' por Yape para Edita Short IA. Mi nombre: '+n+'. Te envío mi comprobante.')}
+$('nom').addEventListener('input',wa);wa();
+$('ent').addEventListener('click',async()=>{
+  const n=$('nom').value,c=$('cod').value.trim().toUpperCase();
+  if(!n.trim()||!c){$('gmsg').textContent='Escribe tu nombre y tu código.';return}
+  const good=c.length>6&&await mk(n,c.slice(0,6))===c;
+  if(good&&fresh(c)){const t=Date.now();try{localStorage.setItem('es_ok',JSON.stringify({n:n,c:c,t:t}))}catch(e){}proUntil=t+30*DAY;expired=false;unlock()}
+  else if(good){$('gmsg').textContent='Este código ya venció. Pide uno nuevo por WhatsApp.'}
+  else $('gmsg').textContent='Código incorrecto. Revisa que el nombre sea igual al que enviaste.';
+});
+(async()=>{try{const o=JSON.parse(localStorage.getItem('es_ok')||'null');if(!o)return;const ok=await mk(o.n,o.c.slice(0,6))===o.c;if(ok&&Date.now()<o.t+30*DAY){proUntil=o.t+30*DAY;unlock()}else if(ok){expired=true}}catch(e){}})();
+let taps=[];
+$('brand').addEventListener('click',()=>{const t=Date.now();taps=taps.filter(x=>t-x<1500);taps.push(t);if(taps.length>=3){taps=[];$('own').hidden=false;$('olb').textContent=CFG.passHash?'Contraseña':'Crea tu contraseña de dueño (primera vez)';$('omsg').textContent=''}});
+$('oclose').addEventListener('click',()=>{$('own').hidden=true});
+$('olog').addEventListener('click',async()=>{
+  const pw=$('opw').value.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/\s+/g,'');if(!pw)return;const h=await sha('own'+pw);
+  if(!CFG.passHash){$('omsg').textContent='Pega esto en CFG y vuelve a subir la página:  passHash:\''+h+'\'';return}
+  if(h===CFG.passHash){$('o1').hidden=true;$('o2').hidden=false;$('omsg').textContent=''}else $('omsg').textContent='Contraseña incorrecta.';
+});
+$('ogen').addEventListener('click',async()=>{const n=$('ocn').value;if(!n.trim())return;$('ocode').textContent=await mk(n,ymd());$('omsg').textContent='Envíale este código a '+n.trim()+' por WhatsApp. Debe activarlo en los próximos 3 días y dura 30 días.'});
+$('ostudio').addEventListener('click',()=>{proUntil=Infinity;unlock()});
+
+$('pay').addEventListener('click',async()=>{
+  try{await navigator.clipboard.writeText(CFG.yape)}catch(e){}
+  const ua=navigator.userAgent,droid=/Android/i.test(ua),ios=/iPhone|iPad|iPod/i.test(ua);
+  const play='https://play.google.com/store/apps/details?id=com.bcp.innovacxion.yapeapp',store='https://apps.apple.com/us/app/yape/id1147249919';
+  const m=$('pmsg');
+  if(!droid&&!ios){m.textContent='Abre esta página desde tu celular para pagar con Yape. Número: '+fmt;return}
+  m.textContent='Número copiado ('+fmt+'). Abriendo Yape… pégalo y yapea S/ '+CFG.precio+'.';
+  if(/FBAN|FBAV|Instagram|musical_ly|TikTok|Snapchat|WhatsApp/i.test(ua))m.textContent+=' Si no abre, toca los 3 puntos y elige "Abrir en el navegador".';
+  if(droid){location.href='intent://#Intent;action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;package=com.bcp.innovacxion.yapeapp;S.browser_fallback_url='+encodeURIComponent(play)+';end'}
+  else{location.href='yape://';setTimeout(()=>{if(!document.hidden)location.href=store},1500)}
+});
+
+const KN=()=>'es_n_'+(user?user.email.toLowerCase():'');
+function used(){try{return +(localStorage.getItem(KN())||0)}catch(e){return 0}}
+function bump(){try{localStorage.setItem(KN(),used()+1)}catch(e){}}
+function refresh(){
+  $('who').textContent=paid&&!user?'Plan Pro':(user?user.name:'');
+  $('quota').textContent=paid?(proUntil===Infinity?'Plan Pro · acceso de dueño':'Plan Pro · '+Math.max(0,Math.ceil((proUntil-Date.now())/DAY))+' días restantes'):'Plan gratis · '+Math.max(0,2-used())+' de 2 videos disponibles';
+  $('up').hidden=paid;
+}
+function showGate(full){
+  $('gh').textContent=expired?'Tu plan Pro venció. Paga de nuevo S/ '+CFG.precio+' para otros 30 días.':(full?'Ya usaste tus 2 videos gratis. Mejora a Pro: S/ '+CFG.precio+' por 30 días, videos ilimitados, alta calidad y sin marca de agua.':'S/ '+CFG.precio+' por 30 días: videos ilimitados, alta calidad y sin marca de agua.');
+  $('gate').hidden=false;$('gate').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function login(email,name){
+  if(!email)return;
+  user={email:email,name:name||email.split('@')[0]};
+  try{localStorage.setItem('es_user',JSON.stringify(user))}catch(e){}
+  $('login').hidden=true;$('landing').hidden=true;$('navbtn').hidden=true;$('tool').hidden=false;refresh();takePending();
+}
+$('hform').addEventListener('submit',e=>{
+  e.preventDefault();const u=$('hurl').value.trim();
+  if(u&&!ytId(u)){$('hmsg').textContent='Pega un enlace válido de YouTube.';return}
+  $('hmsg').textContent='';if(u){try{sessionStorage.setItem('es_yt',u)}catch(_){}}
+  $('login').hidden=false;
+});
+document.querySelectorAll('[data-start]').forEach(b=>b.addEventListener('click',()=>{$('login').hidden=false}));
+$('lclose').addEventListener('click',()=>{$('login').hidden=true});
+$('lgo').addEventListener('click',()=>{
+  const e=$('lem').value.trim();
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e)){$('lmsg').textContent='Escribe un correo válido.';return}
+  login(e);
+});
+$('up').addEventListener('click',()=>showGate(false));
+$('lout').addEventListener('click',()=>{try{localStorage.removeItem('es_user')}catch(e){}location.reload()});
+try{const u=JSON.parse(localStorage.getItem('es_user')||'null');if(u&&u.email)login(u.email,u.name)}catch(e){}
+function needEmail(n){$('lemw').hidden=false;$('lmsg').textContent='Aún falta conectar '+n+'. Mientras tanto, entra con tu correo.'}
+$('lg').addEventListener('click',()=>{
+  if(!CFG.googleClientId||!window.google||!google.accounts||!google.accounts.oauth2){needEmail('Google');return}
+  google.accounts.oauth2.initTokenClient({client_id:CFG.googleClientId,scope:'openid email profile',prompt:'select_account',callback:async r=>{
+    if(!r.access_token)return;
+    try{const j=await(await fetch('https://www.googleapis.com/oauth2/v3/userinfo',{headers:{Authorization:'Bearer '+r.access_token}})).json();login(j.email,j.name)}catch(e){$('lmsg').textContent='No se pudo entrar con Google. Intenta de nuevo.'}
+  }}).requestAccessToken();
+});
+$('lf').addEventListener('click',()=>{
+  if(!CFG.facebookAppId||!window.FB){needEmail('Facebook');return}
+  FB.login(r=>{if(r.authResponse)FB.api('/me',{fields:'name,email'},j=>login(j.email||('fb_'+j.id+'@facebook'),j.name))},{scope:'public_profile,email'});
+});
+if(CFG.googleClientId){const g=document.createElement('script');g.src='https://accounts.google.com/gsi/client';g.async=true;document.head.appendChild(g)}
+if(CFG.facebookAppId){const f=document.createElement('script');f.src='https://connect.facebook.net/es_LA/sdk.js';f.async=true;f.onload=()=>FB.init({appId:CFG.facebookAppId,version:'v19.0'});document.head.appendChild(f)}
+$('ld').addEventListener('click',()=>{
+  if(!CFG.discordClientId){needEmail('Discord');return}
+  location.href='https://discord.com/oauth2/authorize?client_id='+CFG.discordClientId+'&response_type=token&scope=identify%20email&redirect_uri='+encodeURIComponent(location.origin+location.pathname);
+});
+(async()=>{
+  const m=location.hash.match(/access_token=([^&]+)/);if(!m)return;
+  history.replaceState(null,'',location.pathname+location.search);
+  try{const j=await(await fetch('https://discord.com/api/users/@me',{headers:{Authorization:'Bearer '+m[1]}})).json();login(j.email||('dc_'+j.id+'@discord'),j.global_name||j.username)}catch(e){}
+})();
+</script>
+</body>
+</html>
